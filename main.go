@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// 2. 初始化日志
-	if err := logger.Init(); err != nil {
+	if err := logger.Init(settings.Conf.LogConfig); err != nil {
 		fmt.Printf("init logger failed, err:%v\n", err)
 		return
 	}
@@ -37,14 +37,14 @@ func main() {
 	zap.L().Debug("logger init success...")
 
 	// 3. 初始化MySQL
-	if err := mysql.Init(); err != nil {
+	if err := mysql.Init(settings.Conf.MySQLConfig); err != nil {
 		fmt.Printf("init mysql failed, err:%v\n", err)
 		return
 	}
 	defer mysql.Close()
 
 	// 4. 初始化Redis
-	if err := redis.Init(); err != nil {
+	if err := redis.Init(settings.Conf.RedisConfig); err != nil {
 		fmt.Printf("init redis failed, err:%v\n", err)
 		return
 	}
@@ -58,14 +58,12 @@ func main() {
 		Addr:    fmt.Sprintf(":%d", viper.GetInt("app.port")),
 		Handler: r,
 	}
-
 	go func() {
 		// 开启一个goroutine启动服务
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
-
 	// 等待中断信号来优雅地关闭服务器，为关闭服务器操作设置一个5秒的超时
 	quit := make(chan os.Signal, 1) // 创建一个接收信号的通道
 	// kill 默认会发送 syscall.SIGTERM 信号

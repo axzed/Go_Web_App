@@ -1,6 +1,7 @@
 app:
   name: "web_app"
   mode: "dev"
+  version: "0.2.1"
   port: 8080
 
 log:
